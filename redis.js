@@ -1,15 +1,23 @@
 require("dotenv").config();
 
-// Descomente para uso em desenvolvimento
 const Redis = require("ioredis");
+
 const redis = new Redis({
   host: process.env.REDIS_HOST,
   port: process.env.REDIS_PORT,
-  reconnectOnError: (err) => {
-    console.error("Erro de conexão com Redis:", err);
-    return true;
-  }
+  password: process.env.REDIS_PASSWORD,
+  tls: {},
 });
+
+redis.on("error", (err) => {
+  console.error("Erro no Redis:", err);
+});
+
+redis.on("connect", () => {
+  console.log("Conectado ao Redis com sucesso!");
+});
+
+module.exports = redis;
 
 async function registerExpense(to, expense) {
   console.log(expense);
