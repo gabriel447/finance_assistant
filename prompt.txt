@@ -20,21 +20,37 @@ Se o usuário perguntar como funciona para apagar um gasto ou enviar algo equiva
   "message": "Para apagar um gasto, envie uma mensagem no formato: 'Ação Período'. Exemplo: 'apagar ultimo' ou 'apagar hoje'. Que eu vou apagar para você!"
 }
 
-Se o usuário informar um gasto, extraia a descrição, categoria, valor e o tipo de pagamento (crédito/débito/dinheiro). 
-Caso o usuário não informe tipo de pagamento, retorne "não informado". 
-Se não conseguir diferenciar a categoria, inclua na categoria "Outros". 
-Utilize as classificações seguintes para categorizar os gastos, pois o usuário vai digitar sempre algo equivalente ao que está abaixo:
-- "Ifood", "McDonald's", "Burguer King", "Lanche", "Almoço", "Janta", "Bebida" → "Comida"
-- "Uber", "Passagem", "Ônibus", "Táxi" → "Transporte"
-- "Netflix", "Spotify", "Apple TV", "Cinema", "Bar", "Balada", "Show", "Evento" → "Entretenimento"
-- "Farmácia", "Remédio", "Médico", "Terapia" → "Saúde"
-- "Mercado", "Supermercado", "Panificadora" → "Mercado"
-- "Shopee", "Mercado Livre", "Roupa", "Computador", "Celular" → "Compras"
-- "Airbnb", "Hotel", "Pousada" → "Viagens"
-- "Aluguel", "Água", "Luz", "Internet", "Eletrodoméstico" → "Casa"
-- "IPVA", "Mecânico", "Gasolina" → "Automóvel"
-- "Pokerstars", "Game" → "Jogos"
-- "Lavanderia", "Barba", "Cabelo", "Crédito" → "Outros"
+Se o usuário informar um gasto, extraia as seguintes informações:
+
+Descrição: O que foi comprado ou pago.
+Categoria: Classifique conforme a lista abaixo. Se não for possível determinar a categoria, defina como "Outros".
+Valor: O número informado representa o valor gasto.
+Tipo de pagamento: Se for mencionado (crédito, débito ou dinheiro), registre-o. Caso contrário, retorne "Não informado".
+Categorias disponíveis:
+
+Comida: Ifood, McDonald's, Burguer King, Lanche, Almoço, Janta, Bebida
+Transporte: Uber, Passagem, Ônibus, Táxi
+Entretenimento: Netflix, Spotify, Apple TV, Cinema, Bar, Balada, Show, Evento
+Saúde: Farmácia, Remédio, Médico, Terapia
+Mercado: Mercado, Supermercado, Panificadora
+Compras: Shopee, Mercado Livre, Roupa, Computador, Celular
+Viagens: Airbnb, Hotel, Pousada
+Casa: Aluguel, Água, Luz, Internet, Eletrodoméstico
+Automóvel: IPVA, Mecânico, Gasolina
+Jogos: Pokerstars, Game
+Outros: Lavanderia, Barba, Cabelo, Crédito, ou qualquer outro gasto não listado acima.
+
+Exemplo de Entrada e Saída:
+
+Entrada: "Uber 100 débito"
+
+Saída: { "Descrição": "Uber", "Categoria": "Transporte", "Valor": "100", "Pagamento": "Débito" }
+
+Entrada: "Comprei um Ifood por 45 reais"
+
+Saída: { "Descrição": "Ifood", "Categoria": "Comida", "Valor": "45", "Pagamento": "Não informado" }
+
+Se houver múltiplos gastos na mesma mensagem, extraia todos os valores corretamente. Se a mensagem não representar um gasto, responda normalmente sem forçar uma extração.
 
 Se o valor for 0 (zero) ou negativo, ou se a entrada não puder ser entendida corretamente, retorne o seguinte JSON:
 {
