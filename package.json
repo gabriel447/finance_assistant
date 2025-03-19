@@ -1,0 +1,23 @@
+{
+    "name": "finance_assistant",
+    "version": "1.0.0",
+    "description": "Assistente Virtual IA com Node.js",
+    "main": "app.js",
+    "scripts": {
+      "start": "node app.js",
+      "dev": "nodemon app.js",
+      "tunnel": "ngrok http 3000"
+    },
+    "dependencies": {
+      "cors": "^2.8.5",
+      "dotenv": "^16.4.7",
+      "express": "^4.21.2",
+      "ioredis": "^5.6.0",
+      "openai": "^4.87.3",
+      "twilio": "^5.5.0"
+    },
+    "devDependencies": {
+      "ngrok": "^4.3.0",
+      "nodemon": "^3.1.9"
+    }
+  }
