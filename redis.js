@@ -114,7 +114,7 @@ async function fetchSummary(to, periodo) {
           minute: "2-digit",
         });
     
-        return `*Categoria:* ${exp.categoria}\n*Valor:* R$${Number(exp.valor).toFixed(2)}\n*Data:* ${dataFormatada}\n*Descrição:* ${exp.description || "Sem descrição"}\n`;
+        return `*Categoria:* ${exp.categoria}\n*Valor:* R$${Number(exp.valor).toFixed(2)}\n*Data:* ${dataFormatada}\n*Descrição:* ${exp.description || "Sem descrição"}\n*Pagamento:* ${exp.tipo}\n`;
       })
       .join("\n");       
   
