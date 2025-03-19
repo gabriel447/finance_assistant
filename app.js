@@ -1,16 +1,10 @@
 const express = require("express");
 const cors = require("cors");
-require("dotenv").config();
 const { sendWhatsappMessage } = require("./twilio");
 const { getCompletion } = require("./openai");
-const {
-  registerExpense,
-  fetchSummary,
-  storeLastMsg,
-  getLastMsg,
-  deleteExpense,
-} = require("./redis.js");
-const { parse } = require("dotenv");
+const { registerExpense, fetchSummary, storeLastMsg, getLastMsg, deleteExpense } = require("./redis.js");
+
+require("dotenv").config();
 
 const app = express();
 
