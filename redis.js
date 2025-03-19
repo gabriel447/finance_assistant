@@ -1,15 +1,14 @@
 const Redis = require("ioredis");
 require("dotenv").config();
 
-/* descomente para uso local
+//descomente para uso local
 const redis = new Redis({
   host: process.env.REDIS_HOST,
   port: process.env.REDIS_PORT,
   enableReadyCheck: false,
 });
-*/
 
-// config de produção
+/* config de produção
 const redis = new Redis(process.env.REDISCLOUD_URL, {
   enableReadyCheck: false,
 });
@@ -21,6 +20,8 @@ redis.on("connect", () => {
 redis.on("error", (err) => {
   console.error("❌ Erro ao conectar ao Redis:", err);
 });
+
+*/
 
 async function registerExpense(to, expense) {
   console.log(expense);
