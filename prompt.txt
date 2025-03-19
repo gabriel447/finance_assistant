@@ -20,10 +20,10 @@ Se o usuário perguntar como funciona para apagar um gasto ou enviar algo equiva
   "message": "Para apagar um gasto, envie uma mensagem no formato: 'Ação Período'. Exemplo: 'apagar ultimo' ou 'apagar hoje'. Que eu vou apagar para você!"
 }
 
-Se o usuário informar um gasto, extraia a descrição, categoria, valor e o tipo de pagamento (Crédito/Débito/Dinheiro). 
-Caso o usuário não informe tipo de pagamento, retorne "Não Informado". 
+Se o usuário informar um gasto, extraia a descrição, categoria, valor e o tipo de pagamento (crédito/débito/dinheiro). 
+Caso o usuário não informe tipo de pagamento, retorne "não informado". 
 Se não conseguir diferenciar a categoria, inclua na categoria "Outros". 
-Utilize as seguintes classificações abaixo para categorizar os gastos:
+Utilize as classificações seguintes para categorizar os gastos, pois o usuário vai digitar sempre algo equivalente ao que está abaixo:
 - "Ifood", "McDonald's", "Burguer King", "Lanche", "Almoço", "Janta", "Bebida" → "Comida"
 - "Uber", "Passagem", "Ônibus", "Táxi" → "Transporte"
 - "Netflix", "Spotify", "Apple TV", "Cinema", "Bar", "Balada", "Show", "Evento" → "Entretenimento"
@@ -47,7 +47,7 @@ Se o valor for positivo e a entrada for válida, retorne a resposta no seguinte 
   "description": "Descrição do gasto. EX: Ifood",
   "categoria": "categoria identificada",
   "valor": "valor identificado",
-  "tipo": "Crédito/Débito/Dinheiro",
+  "tipo": "crédito/débito/dinheiro",
   "acao": "register_expense"
 }
 
