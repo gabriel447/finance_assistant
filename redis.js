@@ -1,28 +1,12 @@
-const { createClient } = require("redis");
 require("dotenv").config();
 
 // Descomente para uso em desenvolvimento
-/*
 const Redis = require("ioredis");
 const redis = new Redis({
   host: process.env.REDIS_HOST,
   port: process.env.REDIS_PORT,
   enableReadyCheck: false,
 });
-*/
-
-// Descomente para uso em produção
-const redis = createClient({
-  url: process.env.HEROKU_KV_URL,
-  socket: {
-    reconnectStrategy: () => 1000,
-  },
-});
-
-redis.on("error", (err) => console.error("Erro no Redis:", err));
-redis.connect();
-
-module.exports = redis;
 
 // Função para registrar despesas
 async function registerExpense(to, expense) {
