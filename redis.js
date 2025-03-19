@@ -1,8 +1,9 @@
-const Redis = require("ioredis");
+const { createClient } = require("redis");
 require("dotenv").config();
 
-//descomente para uso em desenvolvimento
+// Descomente para uso em desenvolvimento
 /*
+const Redis = require("ioredis");
 const redis = new Redis({
   host: process.env.REDIS_HOST,
   port: process.env.REDIS_PORT,
@@ -10,23 +11,23 @@ const redis = new Redis({
 });
 */
 
-//descomente para uso em produção
-
-const redis = new Redis(process.env.REDISCLOUD_URL, {
-  enableReadyCheck: false,
+// Descomente para uso em produção
+const redis = createClient({
+  url: process.env.HEROKU_KV_URL,
+  socket: {
+    reconnectStrategy: () => 1000,
+  },
 });
 
-redis.on("connect", () => {
-  console.log("🚀 Conectado ao Redis no Heroku!");
-});
+redis.on("error", (err) => console.error("Erro no Redis:", err));
+redis.connect();
 
-redis.on("error", (err) => {
-  console.error("❌ Erro ao conectar ao Redis:", err);
-});
+module.exports = redis;
 
+// Função para registrar despesas
 async function registerExpense(to, expense) {
   console.log(expense);
-  if (!to || !expense.categoria || !expense.valor || !expense.tipo || !expense.description ) {
+  if (!to || !expense.categoria || !expense.valor || !expense.tipo || !expense.description) {
     throw new Error("Dados incompletos.");
   }
 
@@ -54,74 +55,75 @@ async function registerExpense(to, expense) {
   }
 }
 
+// Função para buscar resumo de despesas
 async function fetchSummary(to, periodo) {
-    if (!to || !periodo) {
-      throw new Error("Dados incompletos.");
-    }
-  
-    const userNumber = to.replace("whatsapp:+", "");
-    const expenseKey = `expenses:${userNumber}`;
-    const now = new Date();
-    let startDate;
-  
-    switch (periodo) {
-      case "dia":
-        startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-        break;
-      case "semana":
-        startDate = new Date(now);
-        startDate.setDate(startDate.getDate() - 7);
-        break;
-      case "mês":
-        startDate = new Date(now);
-        startDate.setDate(startDate.getDate() - 30);
-        break;
-      default:
-        throw new Error("Período inválido.");
-    }
-  
-    try {
-      const expenses = await redis.lrange(expenseKey, 0, -1);
-  
-      const filteredExpenses = expenses
-        .map((exp) => {
-          try {
-            const parsed = JSON.parse(exp);
-            parsed.valor = Number(parsed.valor) || 0;
-            parsed.data = new Date(parsed.data);
-            return parsed;
-          } catch (e) {
-            console.error("Erro ao parsear gasto:", exp, e);
-            return null;
-          }
-        })
-        .filter((exp) => exp && exp.data >= startDate);
-  
-      if (filteredExpenses.length === 0) {
-        return {
-          message: `Nenhum gasto encontrado.`,
-        };
-      }
-  
-      const total = filteredExpenses.reduce((acc, exp) => {
-        const valor = Number(exp.valor);
-        return isNaN(valor) ? acc : acc + valor;
-      }, 0);
-  
-      const categoryTotals = {};
-      filteredExpenses.forEach((exp) => {
-        if (!categoryTotals[exp.categoria]) {
-          categoryTotals[exp.categoria] = 0;
+  if (!to || !periodo) {
+    throw new Error("Dados incompletos.");
+  }
+
+  const userNumber = to.replace("whatsapp:+", "");
+  const expenseKey = `expenses:${userNumber}`;
+  const now = new Date();
+  let startDate;
+
+  switch (periodo) {
+    case "dia":
+      startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      break;
+    case "semana":
+      startDate = new Date(now);
+      startDate.setDate(startDate.getDate() - 7);
+      break;
+    case "mês":
+      startDate = new Date(now);
+      startDate.setDate(startDate.getDate() - 30);
+      break;
+    default:
+      throw new Error("Período inválido.");
+  }
+
+  try {
+    const expenses = await redis.lrange(expenseKey, 0, -1);
+
+    const filteredExpenses = expenses
+      .map((exp) => {
+        try {
+          const parsed = JSON.parse(exp);
+          parsed.valor = Number(parsed.valor) || 0;
+          parsed.data = new Date(parsed.data);
+          return parsed;
+        } catch (e) {
+          console.error("Erro ao parsear gasto:", exp, e);
+          return null;
         }
-        categoryTotals[exp.categoria] += Number(exp.valor);
-      });
-  
-      const topCategory = Object.entries(categoryTotals).reduce(
-        (max, current) => (current[1] > max[1] ? current : max),
-        ["Nenhuma", 0]
-      );
-  
-      let expenseList = filteredExpenses
+      })
+      .filter((exp) => exp && exp.data >= startDate);
+
+    if (filteredExpenses.length === 0) {
+      return {
+        message: `Nenhum gasto encontrado.`,
+      };
+    }
+
+    const total = filteredExpenses.reduce((acc, exp) => {
+      const valor = Number(exp.valor);
+      return isNaN(valor) ? acc : acc + valor;
+    }, 0);
+
+    const categoryTotals = {};
+    filteredExpenses.forEach((exp) => {
+      if (!categoryTotals[exp.categoria]) {
+        categoryTotals[exp.categoria] = 0;
+      }
+      categoryTotals[exp.categoria] += Number(exp.valor);
+    });
+
+    const topCategory = Object.entries(categoryTotals).reduce(
+      (max, current) => (current[1] > max[1] ? current : max),
+      ["Nenhuma", 0]
+    );
+
+    let expenseList = filteredExpenses
       .map((exp) => {
         const dataFormatada = exp.data.toLocaleString("pt-BR", {
           day: "2-digit",
@@ -130,31 +132,32 @@ async function fetchSummary(to, periodo) {
           hour: "2-digit",
           minute: "2-digit",
         });
-    
+
         return `*Categoria:* ${exp.categoria}\n*Valor:* R$${Number(exp.valor).toFixed(2)}\n*Data:* ${dataFormatada}\n*Descrição:* ${exp.description || "Sem descrição"}\n*Pagamento:* ${exp.tipo}\n`;
       })
-      .join("\n");       
-  
-      let summaryMessage =
-        `💰 *Resumo dos seus gastos do ${periodo}*\n` +
-        `Total: *R$${total.toFixed(2)}*\n\n` +
-        `📊 *Detalhes dos gastos:*\n${expenseList}\n` +
-        `🔥 *Categoria mais gasta:* ${topCategory[0]} R$${topCategory[1].toFixed(2)}`;
+      .join("\n");
 
-      return { message: summaryMessage };
-    } catch (error) {
-      console.error("Erro ao buscar resumo:", error);
-      throw error;
-    }
+    let summaryMessage =
+      `💰 *Resumo dos seus gastos do ${periodo}*\n` +
+      `Total: *R$${total.toFixed(2)}*\n\n` +
+      `📊 *Detalhes dos gastos:*\n${expenseList}\n` +
+      `🔥 *Categoria mais gasta:* ${topCategory[0]} R$${topCategory[1].toFixed(2)}`;
+
+    return { message: summaryMessage };
+  } catch (error) {
+    console.error("Erro ao buscar resumo:", error);
+    throw error;
+  }
 }
 
+// Funções para armazenar e recuperar a última mensagem
 async function storeLastMsg(to, last) {
   const key = `last_request:${to}`;
   const dataToStore = {
     acao: last.acao,
     periodo: last.periodo,
   };
-  await redis.set(key, JSON.stringify(dataToStore), "EX", 300); // Expira em 5 minutos
+  await redis.set(key, JSON.stringify(dataToStore), "EX", 300);
 }
 
 async function getLastMsg(to) {
@@ -163,6 +166,7 @@ async function getLastMsg(to) {
   return JSON.parse(data) ?? null;
 }
 
+// Função para deletar despesas
 async function deleteExpense(to, lastRequest) {
   if (!to || !lastRequest.periodo) {
     throw new Error("Dados incompletos.");
