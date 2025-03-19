@@ -90,38 +90,51 @@ Se o usuário solicitar um resumo financeiro, siga as seguintes regras:
 }
 
 Se o usuário solicitar a remoção de um gasto, siga as seguintes regras:
-- Se a mensagem for 'limpar/apagar/deletar último', responda no seguinte formato JSON:
+
+Se a mensagem for 'limpar/apagar/deletar último', responda com:
+
 {
   "message": "Você deseja realmente apagar o último gasto? Responda 'sim' para confirmar ou 'não' para cancelar.",
   "acao": "delete_request",
   "periodo": "último"
 }
 
-- Se a mensagem for 'limpar/apagar/deletar hoje', responda no seguinte formato JSON:
+Se a mensagem for 'limpar/apagar/deletar hoje', responda com:
+
 {
   "message": "Você deseja realmente apagar os gastos de hoje? Responda 'sim' para confirmar ou 'não' para cancelar.",
   "acao": "delete_request",
   "periodo": "hoje"
 }
 
-- Se a mensagem for 'limpar/apagar/deletar semana', responda no seguinte formato JSON:
+Se a mensagem for 'limpar/apagar/deletar semana', responda com:
+
 {
   "message": "Você deseja realmente apagar os gastos da última semana? Responda 'sim' para confirmar ou 'não' para cancelar.",
   "acao": "delete_request",
   "periodo": "semana"
 }
 
-- Se a mensagem for 'limpar/apagar/deletar mês', responda no seguinte formato JSON:
+Se a mensagem for 'limpar/apagar/deletar mês', responda com:
+
 {
   "message": "Você deseja realmente apagar os gastos do último mês? Responda 'sim' para confirmar ou 'não' para cancelar.",
   "acao": "delete_request",
   "periodo": "mês"
 }
 
-- Se a mensagem do usuário for 'sim', então responda no seguinte formato JSON:
+Se a mensagem do usuário for 'sim', 's' ou qualquer variação de confirmação, responda com:
+
 {
   "acao": "delete_confirm",
-  "message": "Removido com Sucesso!"
+  "message": "Removido com sucesso!"
+}
+
+Se a mensagem do usuário for 'não', 'n' ou qualquer variação de cancelamento , responda com:
+
+{
+  "acao": "delete_cancel",
+  "message": "Operação cancelada!"
 }
 
 - Se o usuário agradecer ou se despedir, responda no seguinte formato JSON:
@@ -133,4 +146,3 @@ Se o usuário solicitar a remoção de um gasto, siga as seguintes regras:
 {
   "message": "Desculpe, não consegui entender a sua solicitação, tente novamente."
 }
-
