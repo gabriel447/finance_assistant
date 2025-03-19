@@ -8,7 +8,6 @@ const redis = new Redis({
   enableReadyCheck: false,
 });
 
-// Função para registrar despesas
 async function registerExpense(to, expense) {
   console.log(expense);
   if (!to || !expense.categoria || !expense.valor || !expense.tipo || !expense.description) {
@@ -39,7 +38,6 @@ async function registerExpense(to, expense) {
   }
 }
 
-// Função para buscar resumo de despesas
 async function fetchSummary(to, periodo) {
   if (!to || !periodo) {
     throw new Error("Dados incompletos.");
@@ -134,7 +132,6 @@ async function fetchSummary(to, periodo) {
   }
 }
 
-// Funções para armazenar e recuperar a última mensagem
 async function storeLastMsg(to, last) {
   const key = `last_request:${to}`;
   const dataToStore = {
@@ -150,7 +147,6 @@ async function getLastMsg(to) {
   return JSON.parse(data) ?? null;
 }
 
-// Função para deletar despesas
 async function deleteExpense(to, lastRequest) {
   if (!to || !lastRequest.periodo) {
     throw new Error("Dados incompletos.");
