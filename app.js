@@ -18,13 +18,13 @@ app.post("/chat/receive", async (req, res) => {
   try {
     const gptResponse = await getCompletion(body);
     const parsedResponse = JSON.parse(gptResponse);
+    console.log(parsedResponse);
 
     if (gptResponse) {
       switch (parsedResponse.acao) {
         case "register_expense":
           await registerExpense(from, parsedResponse);
           await sendWhatsappMessage(from, parsedResponse.message);
-          console.log(parsedResponse.message);
           break;
         case "fetch_summary":
           const fetchMessage = await fetchSummary(from, parsedResponse.periodo);

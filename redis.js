@@ -5,7 +5,10 @@ const Redis = require("ioredis");
 const redis = new Redis({
   host: process.env.REDIS_HOST,
   port: process.env.REDIS_PORT,
-  enableReadyCheck: false,
+  reconnectOnError: (err) => {
+    console.error("Erro de conexão com Redis:", err);
+    return true;
+  }
 });
 
 async function registerExpense(to, expense) {
